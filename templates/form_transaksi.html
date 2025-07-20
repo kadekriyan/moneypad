@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if transaksi else 'Add' }} Transaction - MoneyPad{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .form-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-subtitle {
+        color: #4a5568;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 2.5rem;
+        border-radius: 25px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e8ed;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-control select {
+        cursor: pointer;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.5rem;
+        justify-content: center;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        padding: 1rem 2rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        background: white;
+        flex: 1;
+        max-width: 200px;
+        position: relative;
+    }
+
+    .radio-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .radio-option input[type="radio"] {
+        display: none;
+    }
+
+    .radio-option label {
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    /* Income styles */
+    .radio-option.income:hover {
+        border-color: #00b894;
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.2);
+    }
+
+    .radio-option.income input[type="radio"]:checked ~ label {
+        color: white;
+    }
+
+    .radio-option.income input[type="radio"]:checked {
+        display: none;
+    }
+
+    .radio-option.income:has(input[type="radio"]:checked) {
+        background: linear-gradient(135deg, #00b894, #00a085);
+        border-color: #00b894;
+        color: white;
+        box-shadow: 0 6px 20px rgba(0, 184, 148, 0.3);
+    }
+
+    .radio-option.income:has(input[type="radio"]:checked) label {
+        color: white;
+    }
+
+    /* Expense styles */
+    .radio-option.expense:hover {
+        border-color: #e17055;
+        box-shadow: 0 4px 15px rgba(225, 112, 85, 0.2);
+    }
+
+    .radio-option.expense input[type="radio"]:checked ~ label {
+        color: white;
+    }
+
+    .radio-option.expense:has(input[type="radio"]:checked) {
+        background: linear-gradient(135deg, #e17055, #d63031);
+        border-color: #e17055;
+        color: white;
+        box-shadow: 0 6px 20px rgba(225, 112, 85, 0.3);
+    }
+
+    .radio-option.expense:has(input[type="radio"]:checked) label {
+        color: white;
+    }
+
+    /* Fallback for browsers that don't support :has() */
+    .radio-option.income.selected {
+        background: linear-gradient(135deg, #00b894, #00a085);
+        border-color: #00b894;
+        color: white;
+        box-shadow: 0 6px 20px rgba(0, 184, 148, 0.3);
+    }
+
+    .radio-option.expense.selected {
+        background: linear-gradient(135deg, #e17055, #d63031);
+        border-color: #e17055;
+        color: white;
+        box-shadow: 0 6px 20px rgba(225, 112, 85, 0.3);
+    }
+
+    .radio-option.selected label {
+        color: white;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .btn-cancel {
+        background: linear-gradient(135deg, #b2bec3, #636e72);
+        color: white;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(99, 110, 114, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .radio-group {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-card {
+            padding: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1 class="form-title">{{ 'Edit' if transaksi else 'Add' }} Transaction</h1>
+        <p class="form-subtitle">
+            {{ 'Update your transaction details' if transaksi else 'Track your income and expenses' }}
+        </p>
+    </div>
+
+    <div class="form-card">
+        <form method="POST">
+            <div class="form-group">
+                <label for="tipe">Transaction Type</label>
+                <div class="radio-group">
+                    <div class="radio-option income">
+                        <input type="radio" id="income" name="tipe" value="Income" 
+                               {{ 'checked' if transaksi and transaksi.tipe == 'Income' else '' }}>
+                        <label for="income">💰 Income</label>
+                    </div>
+                    <div class="radio-option expense">
+                        <input type="radio" id="expense" name="tipe" value="Expense" 
+                               {{ 'checked' if transaksi and transaksi.tipe == 'Expense' else '' }}>
+                        <label for="expense">💸 Expense</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="deskripsi">Description</label>
+                <input type="text" class="form-control" id="deskripsi" name="deskripsi" 
+                       value="{{ transaksi.deskripsi if transaksi else '' }}" 
+                       placeholder="e.g., Salary, Groceries, Coffee" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="jumlah">Amount (Rp)</label>
+                    <input type="number" class="form-control" id="jumlah" name="jumlah" 
+                           value="{{ transaksi.jumlah if transaksi else '' }}" 
+                           placeholder="0" step="0.01" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="kategori">Category</label>
+                    <select class="form-control" id="kategori" name="kategori" required>
+                        <option value="">Select Category</option>
+                        <optgroup label="Income Categories">
+                            <option value="Salary" {{ 'selected' if transaksi and transaksi.kategori == 'Salary' else '' }}>Salary</option>
+                            <option value="Freelance" {{ 'selected' if transaksi and transaksi.kategori == 'Freelance' else '' }}>Freelance</option>
+                            <option value="Investment" {{ 'selected' if transaksi and transaksi.kategori == 'Investment' else '' }}>Investment</option>
+                            <option value="Business" {{ 'selected' if transaksi and transaksi.kategori == 'Business' else '' }}>Business</option>
+                            <option value="Other Income" {{ 'selected' if transaksi and transaksi.kategori == 'Other Income' else '' }}>Other Income</option>
+                        </optgroup>
+                        <optgroup label="Expense Categories">
+                            <option value="Food" {{ 'selected' if transaksi and transaksi.kategori == 'Food' else '' }}>Food & Dining</option>
+                            <option value="Transportation" {{ 'selected' if transaksi and transaksi.kategori == 'Transportation' else '' }}>Transportation</option>
+                            <option value="Shopping" {{ 'selected' if transaksi and transaksi.kategori == 'Shopping' else '' }}>Shopping</option>
+                            <option value="Entertainment" {{ 'selected' if transaksi and transaksi.kategori == 'Entertainment' else '' }}>Entertainment</option>
+                            <option value="Bills" {{ 'selected' if transaksi and transaksi.kategori == 'Bills' else '' }}>Bills & Utilities</option>
+                            <option value="Healthcare" {{ 'selected' if transaksi and transaksi.kategori == 'Healthcare' else '' }}>Healthcare</option>
+                            <option value="Education" {{ 'selected' if transaksi and transaksi.kategori == 'Education' else '' }}>Education</option>
+                            <option value="Other Expense" {{ 'selected' if transaksi and transaksi.kategori == 'Other Expense' else '' }}>Other Expense</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tanggal">Date</label>
+                <input type="date" class="form-control" id="tanggal" name="tanggal" 
+                       value="{{ transaksi.tanggal.strftime('%Y-%m-%d') if transaksi else '' }}" required>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn">
+                    {{ 'Update Transaction' if transaksi else 'Add Transaction' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Auto-select today's date if adding new transaction
+    {% if not transaksi %}
+    document.getElementById('tanggal').valueAsDate = new Date();
+    {% endif %}
+
+    // Enhanced radio button styling
+    document.querySelectorAll('input[name="tipe"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Remove selected class from all options
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            // Add selected class to the chosen option
+            this.closest('.radio-option').classList.add('selected');
+        });
+    });
+
+    // Initialize selected state on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkedRadio = document.querySelector('input[name="tipe"]:checked');
+        if (checkedRadio) {
+            checkedRadio.closest('.radio-option').classList.add('selected');
+        }
+    });
+</script>
+{% endblock %}
